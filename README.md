@@ -1,6 +1,6 @@
-# Welcome to your CDK TypeScript project!
+# Welcome to the Michael Scott Quote API
 
-This is a blank project for TypeScript development with CDK.
+This project is built using the AWS CDK.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

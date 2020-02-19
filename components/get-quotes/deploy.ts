@@ -7,7 +7,7 @@ export class Deploy {
     // Create the lambda function
     let fn = new lambda.Function(stack, "GetMichaelQuote", {
       runtime: lambda.Runtime.PYTHON_3_8,
-      code: lambda.Code.asset(__dirname + "/lambda/"),
+      code: lambda.Code.asset(__dirname + "/lambda/function.zip"),
       handler: "get_quote.handler",
       environment: {
           dynamoDBQuotes: stack.dynamoDBQuotes.tableName

@@ -2,6 +2,7 @@ import boto3
 import json
 import random
 import os
+from jinja2 import Environment, FileSystemLoader
 
 
 dynamodb_client = boto3.client('dynamodb')
@@ -20,6 +21,15 @@ def get_quote():
     return json.loads(r['Item']['data']['S'])
 
 
+def _render_template(quote):
+    env = Environment(loader=FileSystemLoader(
+        os.path.abspath(
+            os.path.dirname(__file__))))
+    template = env.get_template('index.html')
+    rendered_template = template.render(quote=quote)
+    return rendered_template
+
+
 def handler(event, context):
     quotes = get_quote()
 
@@ -27,22 +37,25 @@ def handler(event, context):
 
     for x in quotes:
         if x.get('id') == rand_number:
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'application/json'
-                },
-                'body': json.dumps(
-                    {
-                        "quote": x.get("quote")
-                    }
-                )
-            }
-
-    return{
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(quotes)
-    }
+            if event['queryStringParameters'] is None:
+                body = _render_template(x.get("quote"))
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'text/html'
+                    },
+                    'body': body
+                }
+            elif 'format' in event['queryStringParameters']:
+                # if event['queryStringParameters'].get('format') == 'json':
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json'
+                    },
+                    'body': json.dumps(
+                        {
+                            'quote': x.get('quote')
+                        }
+                    )
+                }
